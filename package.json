@@ -1,0 +1,13 @@
+{
+  "name": "halilokutan-site",
+  "version": "1.0.0",
+  "description": "Halil Okutan's personal website",
+  "main": "index.html",
+  "scripts": {
+    "start": "python3 -m http.server 8000",
+    "build": "echo 'No build step required for static site'"
+  },
+  "keywords": ["portfolio", "website"],
+  "author": "Halil Okutan",
+  "license": "MIT"
+}
