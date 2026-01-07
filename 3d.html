@@ -26,11 +26,13 @@ button:hover { background:#334155; }
 
 <div id="container"></div>
 
-<script type="module">
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.module.js';
-import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/controls/OrbitControls.js';
+<!-- THREE.JS (classic) -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.152.2/examples/js/controls/OrbitControls.js"></script>
 
+<script>
 const container = document.getElementById('container');
+
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x0b1220);
 
@@ -43,22 +45,22 @@ renderer.shadowMap.enabled = true;
 container.appendChild(renderer.domElement);
 
 // Kontroller
-const controls = new OrbitControls(camera, renderer.domElement);
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
 controls.target.set(2,2,6);
 controls.enableDamping = true;
 
 // Işıklar
-const ambient = new THREE.HemisphereLight(0xffffff, 0x222222, 0.4);
+const ambient = new THREE.HemisphereLight(0xffffff, 0x222222, 0.5);
 scene.add(ambient);
 
-const sun = new THREE.DirectionalLight(0xffffff, 0.8);
+const sun = new THREE.DirectionalLight(0xffffff, 1);
 sun.position.set(10,20,10);
 sun.castShadow = true;
 scene.add(sun);
 
 let interiorLights = [];
 function addInteriorLight(x,y,z){
-  const l = new THREE.PointLight(0xfff2cc, 1.2, 8, 2);
+  const l = new THREE.PointLight(0xfff2cc, 1.5, 10, 2);
   l.position.set(x,y,z);
   scene.add(l);
   interiorLights.push(l);
@@ -111,7 +113,7 @@ house.add(roof);
 
 // Cam
 const glassMat = new THREE.MeshStandardMaterial({
-  color:0x335577, transparent:true, opacity:0.5, roughness:0.2
+  color:0x335577, transparent:true, opacity:0.5
 });
 const window1 = new THREE.Mesh(new THREE.BoxGeometry(3,1.6,0.1), glassMat);
 window1.position.set(2,1.8,2.05);
@@ -134,12 +136,12 @@ animate();
 
 // UI
 let lightsOn = true;
-window.toggleLights = function(){
+function toggleLights(){
   lightsOn = !lightsOn;
-  interiorLights.forEach(l => l.intensity = lightsOn ? 1.2 : 0.0);
+  interiorLights.forEach(l => l.intensity = lightsOn ? 1.5 : 0.0);
 }
 
-window.toggleFullscreen = function(){
+function toggleFullscreen(){
   if(!document.fullscreenElement){
     document.body.requestFullscreen();
   } else {
