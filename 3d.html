@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>3D Modern Ev</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+html,body { margin:0; height:100%; overflow:hidden; background:#0b0f18; font-family:Arial; }
+#ui {
+  position:fixed; top:10px; left:10px; z-index:10; display:flex; gap:10px;
+}
+button {
+  background:#1e293b; color:white; border:none; padding:10px 14px;
+  border-radius:8px; cursor:pointer; font-size:14px;
+}
+button:hover { background:#334155; }
+#container { width:100vw; height:100vh; }
+</style>
+</head>
+<body>
+
+<div id="ui">
+  <button onclick="toggleLights()">💡 Işık Aç/Kapat</button>
+  <button onclick="toggleFullscreen()">⛶ Tam Ekran</button>
+</div>
+
+<div id="container"></div>
+
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.module.js';
+import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/controls/OrbitControls.js';
+
+const container = document.getElementById('container');
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0b1220);
+
+const camera = new THREE.PerspectiveCamera(50, window.innerWidth/window.innerHeight, 0.1, 500);
+camera.position.set(15, 10, 18);
+
+const renderer = new THREE.WebGLRenderer({ antialias:true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
+container.appendChild(renderer.domElement);
+
+// Kontroller
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(2,2,6);
+controls.enableDamping = true;
+
+// Işıklar
+const ambient = new THREE.HemisphereLight(0xffffff, 0x222222, 0.4);
+scene.add(ambient);
+
+const sun = new THREE.DirectionalLight(0xffffff, 0.8);
+sun.position.set(10,20,10);
+sun.castShadow = true;
+scene.add(sun);
+
+let interiorLights = [];
+function addInteriorLight(x,y,z){
+  const l = new THREE.PointLight(0xfff2cc, 1.2, 8, 2);
+  l.position.set(x,y,z);
+  scene.add(l);
+  interiorLights.push(l);
+}
+addInteriorLight(2,3,5);
+addInteriorLight(4,3,5);
+addInteriorLight(2,6,5);
+
+// Zemin
+const ground = new THREE.Mesh(
+  new THREE.PlaneGeometry(100,100),
+  new THREE.MeshStandardMaterial({ color:0x1f3f2a })
+);
+ground.rotation.x = -Math.PI/2;
+ground.receiveShadow = true;
+scene.add(ground);
+
+// EV
+const house = new THREE.Group();
+scene.add(house);
+
+// Alt kat
+const base = new THREE.Mesh(
+  new THREE.BoxGeometry(10,3,8),
+  new THREE.MeshStandardMaterial({ color:0xf2f2f2 })
+);
+base.position.set(2,1.5,6);
+base.castShadow = true;
+base.receiveShadow = true;
+house.add(base);
+
+// Üst kat
+const upper = new THREE.Mesh(
+  new THREE.BoxGeometry(9,2.7,7),
+  new THREE.MeshStandardMaterial({ color:0xe8e8e8 })
+);
+upper.position.set(2,4.0,6);
+upper.castShadow = true;
+upper.receiveShadow = true;
+house.add(upper);
+
+// Çatı
+const roof = new THREE.Mesh(
+  new THREE.BoxGeometry(11,0.3,9),
+  new THREE.MeshStandardMaterial({ color:0x333333 })
+);
+roof.position.set(2,5.6,6);
+roof.castShadow = true;
+house.add(roof);
+
+// Cam
+const glassMat = new THREE.MeshStandardMaterial({
+  color:0x335577, transparent:true, opacity:0.5, roughness:0.2
+});
+const window1 = new THREE.Mesh(new THREE.BoxGeometry(3,1.6,0.1), glassMat);
+window1.position.set(2,1.8,2.05);
+house.add(window1);
+
+// Resize
+window.addEventListener('resize', ()=>{
+  camera.aspect = window.innerWidth/window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// Animasyon
+function animate(){
+  requestAnimationFrame(animate);
+  controls.update();
+  renderer.render(scene, camera);
+}
+animate();
+
+// UI
+let lightsOn = true;
+window.toggleLights = function(){
+  lightsOn = !lightsOn;
+  interiorLights.forEach(l => l.intensity = lightsOn ? 1.2 : 0.0);
+}
+
+window.toggleFullscreen = function(){
+  if(!document.fullscreenElement){
+    document.body.requestFullscreen();
+  } else {
+    document.exitFullscreen();
+  }
+}
+</script>
+
+</body>
+</html>
